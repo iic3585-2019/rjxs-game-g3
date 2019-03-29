@@ -1,0 +1,21 @@
+{
+  "extends": ["airbnb-base"],
+  "parserOptions": {
+    "ecmaFeatures": {
+      "modules": true
+    }
+  },
+  "parser": "babel-eslint",
+  "env": {
+    "es6": true,
+    "node": true,
+    "browser": true
+  },
+  "plugins": ["babel"],
+  "rules": {
+    "require-jsdoc": 0,
+    "no-invalid-this": 0,
+    "babel/no-invalid-this": 2,
+    "babel/semi": 2
+  }
+}
