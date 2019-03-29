@@ -4,6 +4,7 @@ import createPlayers from './util';
 export default class Game {
   state = {
     players: [],
+    keyPressed: '',
   };
 
   constructor() {
@@ -14,6 +15,11 @@ export default class Game {
   currentPlayers = () => this.state.players.filter(player => !player.won);
 
   currentPlayer = () => this.state.players[this.state.turnIndex];
+
+  respondToInput = (keyPressed) => {
+    this.state.keyPressed = keyPressed;
+    this.subject.next(this.state);
+  };
 
   start = () => {
     this.state.players = createPlayers();
