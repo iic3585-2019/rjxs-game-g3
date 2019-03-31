@@ -2,6 +2,26 @@ body {
   font-family: sans-serif;
 }
 
+#score-separator {
+  margin: 0px 5px 1% 5px;
+  font-size: 1.5em;
+}
+
+.wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+}
+
+.header-wrapper {
+  align-items: center;
+  flex-direction: row;
+  display: flex;
+  justify-content: center;
+  width: 300px;
+}
+
 #playground {
   background: black;
   width: 300px;

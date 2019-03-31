@@ -6,23 +6,27 @@
     <script type="text/javascript" src="http://localhost:8080/app.js"></script>
   </head>
   <body>
-    <header><h1>Pong</h1></header>
-
-    <div class="score">Score P1: <span id="score">0</span></div>
-    <div class="score">Score P2: <span id="score2">0</span></div>
-
-    <div id="playground">
-      <div id="start-message">
-        press any key to start <br />
-        move &#8592; &#8594;
+    <div class="wrapper">
+      <header><h1>Pong</h1></header>
+      <div class="header-wrapper">
+        <div class="score">Eva <span id="score">0</span></div>
+        <span id="score-separator"> — </span>
+        <div class="score"><span id="score2">0</span> Adam</div>
       </div>
-      <div id="game-over">
-        game over <br />
-        press F5 to play again
+
+      <div id="playground">
+        <div id="start-message">
+          Press any key to start <br />
+          move &#8592; &#8594;
+        </div>
+        <div id="game-over">
+          Game over <br />
+          press F5 to play again
+        </div>
+        <div id="racket-2"></div>
+        <div id="ball"></div>
+        <div id="racket-1"></div>
       </div>
-      <div id="racket-2"></div>
-      <div id="ball"></div>
-      <div id="racket-1"></div>
     </div>
   </body>
 </html>

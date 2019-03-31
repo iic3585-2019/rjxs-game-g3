@@ -2,17 +2,51 @@ import { fromEvent, interval, zip } from 'rxjs';
 import { map, filter } from 'rxjs/operators';
 import './styles/index.scss';
 
-import { makeRacket, moveRacket, moveRacket2, drawRacket, drawRacket2, isRacketHit, isRacketHit2 } from './racket';
-import { makeBall, moveBallDirX, moveBallDirY, moveBallPos, changeBallPos, drawBall, changeDirY, buildPos } from './ball';
-import { KEYS, STATUSES, changeScore, drawScore, isGameOver, endGame, drawEndGame, restart } from './game';
+import {
+  makeRacket,
+  moveRacket,
+  moveRacket2,
+  drawRacket,
+  drawRacket2,
+  isRacketHit,
+  isRacketHit2,
+} from './racket';
+import {
+  makeBall,
+  moveBallDirX,
+  moveBallDirY,
+  moveBallPos,
+  changeBallPos,
+  drawBall,
+  changeDirY,
+  buildPos,
+} from './ball';
+import {
+  KEYS,
+  STATUSES,
+  changeScore,
+  drawScore,
+  isGameOver,
+  endGame,
+  drawEndGame,
+  restart,
+} from './game';
 
-function isRunning() { return racket.status === STATUSES.RUNNING; }
+function isRunning() {
+  return racket.status === STATUSES.RUNNING;
+}
 
-function isStoped() { return racket.status === STATUSES.STOPED; }
+function isStoped() {
+  return racket.status === STATUSES.STOPED;
+}
 
-function isRunning2() { return racket2.status === STATUSES.RUNNING; }
+function isRunning2() {
+  return racket2.status === STATUSES.RUNNING;
+}
 
-function isStoped2() { return racket2.status === STATUSES.STOPED; }
+function isStoped2() {
+  return racket2.status === STATUSES.STOPED;
+}
 
 const racket = makeRacket();
 
@@ -53,7 +87,11 @@ function load() {
       racket.pressedKeys[event.which] = true;
     } else if (event.which === KEYS.A || event.which === KEYS.D) {
       racket2.pressedKeys[event.which] = true;
-    } else if (event.which == KEYS.R && racket.status === STATUSES.GAMEOVER && racket2.status === STATUSES.GAMEOVER) {
+    } else if (
+      event.which == KEYS.R
+      && racket.status === STATUSES.GAMEOVER
+      && racket2.status === STATUSES.GAMEOVER
+    ) {
       restart(racket, racket2, ball, gameOverHTML);
     }
   });
@@ -105,10 +143,9 @@ function load() {
 
   gameOver2.subscribe(() => {
     endGame(racket, racket2);
-    changeScore(racket2)
+    changeScore(racket2);
     drawScore(scoreHTML2, racket2.score);
     drawEndGame(gameOverHTML, 2);
-
   });
 }
 
