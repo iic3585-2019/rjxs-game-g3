@@ -1,23 +1,32 @@
 const path = require('path');
 
 module.exports = {
-  entry: {
-    app: path.resolve(__dirname, 'src', 'index.js'),
-  },
-  devtool: 'inline-source-map',
   module: {
     rules: [
       {
-        test: /\.js$/,
-        use: 'babel-loader',
+        test: /\.js?$/,
+        loader: 'babel-loader',
         exclude: /node_modules/,
+      },
+      {
+        test: /\.scss$/,
+        use: [
+          'style-loader', // creates style nodes from JS strings
+          'css-loader', // translates CSS into CommonJS
+          'sass-loader', // compiles Sass to CSS, using Node Sass by default
+        ],
+      },
+      {
+        test: /\.css$/,
+        use: ['style-loader', 'css-loader'],
       },
     ],
   },
-  resolve: {
-    extensions: ['.ts', '.js', '.tsx'],
+  entry: {
+    app: path.resolve(__dirname, 'src', 'index.js'),
   },
   mode: 'development',
+  devtool: 'inline-source-map',
   output: {
     path: path.resolve(__dirname, 'build'),
     publicPath: 'http://localhost:8080/',

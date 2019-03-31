@@ -1,11 +1,27 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
   <head>
-    <title>Nervioso</title>
+    <meta charset="UTF-8" />
+    <title>Pong</title>
     <script type="text/javascript" src="http://localhost:8080/app.js"></script>
   </head>
   <body>
-    <div id="game-wrapper"></div>
-    <div id="players"></div>
+    <header><h1>Pong</h1></header>
+
+    <div class="score">Score: <span id="score">0</span></div>
+
+    <div id="playground">
+      <div id="start-message">
+        press any key to start <br />
+        move &#8592; &#8594;
+      </div>
+      <div id="game-over">
+        game over <br />
+        press F5 to play again
+      </div>
+      <div id="racket-2"></div>
+      <div id="ball"></div>
+      <div id="racket-1"></div>
+    </div>
   </body>
 </html>
