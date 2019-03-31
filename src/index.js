@@ -11,6 +11,7 @@ import {
   isRacketHit,
   isRacketHit2,
 } from './racket';
+
 import {
   makeBall,
   moveBallDirX,
@@ -21,6 +22,7 @@ import {
   changeDirY,
   buildPos,
 } from './ball';
+
 import {
   KEYS,
   STATUSES,
@@ -55,6 +57,8 @@ const racket2 = makeRacket();
 const ball = makeBall();
 
 function load() {
+  const evaHTML = document.getElementById('eva');
+  const adamHTML = document.getElementById('adam');
   const playgroundHTML = document.getElementById('playground');
   const racketHTML = document.getElementById('racket-1');
   const racket2HTML = document.getElementById('racket-2');
@@ -88,13 +92,14 @@ function load() {
     } else if (event.which === KEYS.A || event.which === KEYS.D) {
       racket2.pressedKeys[event.which] = true;
     } else if (
-      event.which == KEYS.R
+      event.which === KEYS.R
       && racket.status === STATUSES.GAMEOVER
       && racket2.status === STATUSES.GAMEOVER
     ) {
-      restart(racket, racket2, ball, gameOverHTML);
+      restart(racket, racket2, ball, gameOverHTML, evaHTML, adamHTML);
     }
   });
+
   keyUp.subscribe((event) => {
     if (event.which === KEYS.LEFT || event.which === KEYS.RIGHT) {
       racket.pressedKeys[event.which] = false;
@@ -138,14 +143,14 @@ function load() {
     endGame(racket, racket2);
     changeScore(racket);
     drawScore(scoreHTML, racket.score);
-    drawEndGame(gameOverHTML, 1);
+    drawEndGame(gameOverHTML, evaHTML, 1);
   });
 
   gameOver2.subscribe(() => {
     endGame(racket, racket2);
     changeScore(racket2);
     drawScore(scoreHTML2, racket2.score);
-    drawEndGame(gameOverHTML, 2);
+    drawEndGame(gameOverHTML, adamHTML, 2);
   });
 }
 

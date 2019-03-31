@@ -31,12 +31,13 @@ export function endGame(racket, racket2) {
   racket2.status = STATUSES.GAMEOVER;
 }
 
-export function drawEndGame(gameOverHTML, playerNum) {
+export function drawEndGame(gameOverHTML, winnerHTML, playerNum) {
   gameOverHTML.style.display = 'block';
   gameOverHTML.innerHTML = `${playerNum === 1 ? 'Eva' : 'Adam'} won!<br/>press R to play again`;
+  winnerHTML.style.display = 'block';
 }
 
-export function restart(racket1, racket2, ball, gameOverHTML) {
+export function restart(racket1, racket2, ball, gameOverHTML, evaHTML, adamHTML) {
   racket1.status = STATUSES.STOPED;
   racket2.status = STATUSES.STOPED;
   ball.speed = 2;
@@ -45,4 +46,6 @@ export function restart(racket1, racket2, ball, gameOverHTML) {
   ball.directionX = -1;
   ball.directionY = -1;
   gameOverHTML.style.display = 'none';
+  evaHTML.style.display = 'none';
+  adamHTML.style.display = 'none';
 }
