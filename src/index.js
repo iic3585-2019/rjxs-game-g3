@@ -8,8 +8,9 @@ const pong = {
   status: STATUSES.STOPED,
   pressedKeys: [],
   score: 0,
+  isHit: 0,
   ball: {
-    speed: 5,
+    speed: 3,
     x: 135,
     y: 100,
     directionX: -1,
@@ -21,8 +22,9 @@ const pong2 = {
   status: STATUSES.STOPED,
   pressedKeys: [],
   score: 0,
+  isHit: 0,
   ball: {
-    speed: 5,
+    speed: 3,
     x: 135,
     y: 20,
     directionX: -1,
@@ -38,8 +40,8 @@ const KEYS = {
 };
 
 function moveRacket(racketHTML, pong) {
+  // console.log('moveRacket-1', pong.pressedKeys);
   const left = racketHTML.offsetLeft;
-  console.log('moveRacket-1', pong.pressedKeys);
   if (pong.pressedKeys[KEYS.LEFT]) {
     return left - 5;
   }
@@ -50,7 +52,7 @@ function moveRacket(racketHTML, pong) {
 }
 
 function moveRacket2(racket2HTML, pong2) {
-  console.log('moveRacket-2', pong2.pressedKeys);
+  // console.log('moveRacket-2', pong2.pressedKeys);
   const left = racket2HTML.offsetLeft;
   if (pong2.pressedKeys[KEYS.A]) {
     return left - 5;
@@ -144,7 +146,7 @@ function isRacketHit2(racket2HTML, ballHTML, ball) {
   const posX = nextPosition(ball.x, ball.speed, ball.directionX);
   const posY = nextPosition(ball.y, ball.speed, ball.directionY);
   const racketPosY = racket2PositionY(racket2HTML, ballHTML);
-  const res = posX >= racketBorderLeft && posX <= racketBorderRight && posY >= racketPosY;
+  const res = posX >= racketBorderLeft && posX <= racketBorderRight && posY <= racketPosY+20; // adding racket height to because ball is hitting from below
   if (res) {
     console.log('racket-2 hit');
   }
@@ -160,7 +162,7 @@ function drawScore(scoreHTML, score) {
 }
 
 function changeDirectionY(ball) {
-  ball.directionY = -1;
+  ball.directionY *= -1;
 }
 
 function isGameOver(racketHTML, ballHTML, ball) {
@@ -170,13 +172,21 @@ function isGameOver(racketHTML, ballHTML, ball) {
   return posY > racketPosY;
 }
 
+function isGameOver2(racketHTML, ballHTML, ball) {
+  const bottomPos = racketHTML.offsetHeight;
+  const posY = nextPosition(ball.y, ball.speed, ball.directionY) - bottomPos;
+  const racketPosY = racketPositionY(racketHTML, ballHTML);
+  return posY+20 < racketPosY;
+}
+
 function endGame(pong) {
   pong.status = STATUSES.GAMEOVER;
   pong2.status = STATUSES.GAMEOVER;
 }
 
-function drawEndGame(gameOverHTML) {
+function drawEndGame(gameOverHTML, playerNum) {
   gameOverHTML.style.display = 'block';
+  gameOverHTML.innerHTML = "player"+playerNum+" won!<br/>press F5 to play again"
 }
 
 function isRunning() {
@@ -210,6 +220,7 @@ function load() {
   const racket2HTML = document.getElementById('racket-2');
   const ballHTML = document.getElementById('ball');
   const scoreHTML = document.getElementById('score');
+  const scoreHTML2 = document.getElementById('score2');
   const startHTML = document.getElementById('start-message');
   const gameOverHTML = document.getElementById('game-over');
   const keyDown = fromEvent(document, 'keydown');
@@ -227,9 +238,9 @@ function load() {
   const moveRacketPos = loop.pipe(map(() => moveRacket(racketHTML, pong)));
   const moveRacketPos2 = loop2.pipe(map(() => moveRacket2(racket2HTML, pong2)));
   const hit = loop.pipe(filter(() => isRacketHit(racketHTML, ballHTML, pong.ball)));
-  const hit2 = loop2.pipe(filter(() => isRacketHit2(racket2HTML, ballHTML, pong2.ball)));
+  const hit2 = loop2.pipe(filter(() => isRacketHit2(racket2HTML, ballHTML, pong.ball)));
   const gameOver = loop.pipe(filter(() => isGameOver(racketHTML, ballHTML, pong.ball)));
-  const gameOver2 = loop2.pipe(filter(() => isGameOver(racket2HTML, ballHTML, pong2.ball)));
+  const gameOver2 = loop2.pipe(filter(() => isGameOver2(racket2HTML, ballHTML, pong.ball)));
 
   keyDown.subscribe((event) => {
     if (event.which === KEYS.LEFT || event.which === KEYS.RIGHT) {
@@ -276,19 +287,20 @@ function load() {
   });
 
   hit2.subscribe((hit2) => {
-    changeDirectionY(pong2.ball);
-    changeScore(pong);
-    drawScore(scoreHTML, pong.score);
+    changeDirectionY(pong.ball);
+    changeScore(pong2);
+    drawScore(scoreHTML2, pong2.score);
   });
 
   gameOver.subscribe(() => {
     endGame(pong);
-    drawEndGame(gameOverHTML);
+    drawEndGame(gameOverHTML, 2);
   });
 
   gameOver2.subscribe(() => {
     endGame(pong);
-    drawEndGame(gameOverHTML);
+    drawEndGame(gameOverHTML, 1);
+
   });
 }
 
