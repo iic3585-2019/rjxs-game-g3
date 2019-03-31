@@ -2,217 +2,23 @@ import { fromEvent, interval, zip } from 'rxjs';
 import { map, filter } from 'rxjs/operators';
 import './styles/index.scss';
 
-const STATUSES = { STOPED: 'STOPED', RUNNING: 'RUNNING', GAMEOVER: 'GAMEOVER' };
+import { makeRacket, moveRacket, moveRacket2, drawRacket, drawRacket2, isRacketHit, isRacketHit2 } from './racket';
+import { makeBall, moveBallDirX, moveBallDirY, moveBallPos, changeBallPos, drawBall, changeDirY, buildPos } from './ball';
+import { KEYS, STATUSES, changeScore, drawScore, isGameOver, endGame, drawEndGame, restart } from './game';
 
-const pong = {
-  status: STATUSES.STOPED,
-  pressedKeys: [],
-  score: 0,
-  isHit: 0,
-  ball: {
-    speed: 3,
-    x: 135,
-    y: 100,
-    directionX: -1,
-    directionY: -1,
-  },
-};
+function isRunning() { return racket.status === STATUSES.RUNNING; }
 
-const pong2 = {
-  status: STATUSES.STOPED,
-  pressedKeys: [],
-  score: 0,
-  isHit: 0,
-  ball: {
-    speed: 3,
-    x: 135,
-    y: 20,
-    directionX: -1,
-    directionY: -1,
-  },
-};
+function isStoped() { return racket.status === STATUSES.STOPED; }
 
-const KEYS = {
-  LEFT: 37,
-  RIGHT: 39,
-  A: 65,
-  D: 68,
-};
+function isRunning2() { return racket2.status === STATUSES.RUNNING; }
 
-function moveRacket(racketHTML, pong) {
-  // console.log('moveRacket-1', pong.pressedKeys);
-  const left = racketHTML.offsetLeft;
-  if (pong.pressedKeys[KEYS.LEFT]) {
-    return left - 5;
-  }
-  if (pong.pressedKeys[KEYS.RIGHT]) {
-    return left + 5;
-  }
-  return left;
-}
+function isStoped2() { return racket2.status === STATUSES.STOPED; }
 
-function moveRacket2(racket2HTML, pong2) {
-  // console.log('moveRacket-2', pong2.pressedKeys);
-  const left = racket2HTML.offsetLeft;
-  if (pong2.pressedKeys[KEYS.A]) {
-    return left - 5;
-  }
-  if (pong2.pressedKeys[KEYS.D]) {
-    return left + 5;
-  }
-  return left;
-}
+const racket = makeRacket();
 
-function drawRacket(racketHTML, pixelPos) {
-  racketHTML.style.left = `${pixelPos}px`;
-}
+const racket2 = makeRacket();
 
-function drawRacket2(racket2HTML, pixelPos) {
-  racket2HTML.style.left = `${pixelPos}px`;
-}
-
-function nextPosition(currentPosition, speed, direction) {
-  return currentPosition + speed * direction;
-}
-
-function moveBallDirectionX(playgroundHTML, ball) {
-  const width = playgroundHTML.offsetWidth;
-  let { directionX } = ball;
-  const positionX = nextPosition(ball.x, ball.speed, ball.directionX);
-  if (positionX > width) {
-    directionX = -1;
-  }
-  if (positionX < 0) {
-    directionX = 1;
-  }
-  return directionX;
-}
-
-function moveBallDirectionY(playgroundHTML, ball) {
-  const height = playgroundHTML.offsetHeight;
-  let { directionY } = ball;
-  const positionY = nextPosition(ball.y, ball.speed, ball.directionY);
-  if (positionY > height) {
-    directionY = -1;
-  }
-  if (positionY < 0) {
-    directionY = 1;
-  }
-  return directionY;
-}
-
-function moveBallPosition(ball, direction) {
-  return ball.speed * direction;
-}
-
-function changeBallPosition(ball, dirX, posX, dirY, posY) {
-  ball.directionX = dirX;
-  ball.directionY = dirY;
-  ball.x += posX;
-  ball.y += posY;
-}
-
-function drawBall(ballHTML, ball) {
-  ballHTML.style.left = `${ball.x}px`;
-  ballHTML.style.top = `${ball.y}px`;
-}
-
-function racketPositionY(racketHTML, ballHTML) {
-  const ballSize = ballHTML.offsetHeight;
-  return racketHTML.offsetTop - ballSize / 2; // subtracting size of ball for doesn't pass through racket
-}
-
-function racket2PositionY(racket2HTML, ballHTML) {
-  const ballSize = ballHTML.offsetHeight;
-  return racket2HTML.offsetTop - ballSize / 2; // subtracting size of ball for doesn't pass through racket
-}
-
-function isRacketHit(racketHTML, ballHTML, ball) {
-  const racketBorderLeft = racketHTML.offsetLeft;
-  const racketBorderRight = racketBorderLeft + racketHTML.offsetWidth;
-  const posX = nextPosition(ball.x, ball.speed, ball.directionX);
-  const posY = nextPosition(ball.y, ball.speed, ball.directionY);
-  const racketPosY = racketPositionY(racketHTML, ballHTML);
-  const res = posX >= racketBorderLeft && posX <= racketBorderRight && posY >= racketPosY;
-  if (res) {
-    console.log('racket-1 hit');
-  }
-  return res;
-}
-
-function isRacketHit2(racket2HTML, ballHTML, ball) {
-  const racketBorderLeft = racket2HTML.offsetLeft;
-  const racketBorderRight = racketBorderLeft + racket2HTML.offsetWidth;
-  const posX = nextPosition(ball.x, ball.speed, ball.directionX);
-  const posY = nextPosition(ball.y, ball.speed, ball.directionY);
-  const racketPosY = racket2PositionY(racket2HTML, ballHTML);
-  const res = posX >= racketBorderLeft && posX <= racketBorderRight && posY <= racketPosY+20; // adding racket height to because ball is hitting from below
-  if (res) {
-    console.log('racket-2 hit');
-  }
-  return res;
-}
-
-function changeScore(pong) {
-  pong.score++;
-}
-
-function drawScore(scoreHTML, score) {
-  scoreHTML.innerHTML = score;
-}
-
-function changeDirectionY(ball) {
-  ball.directionY *= -1;
-}
-
-function isGameOver(racketHTML, ballHTML, ball) {
-  const bottomPos = racketHTML.offsetHeight;
-  const posY = nextPosition(ball.y, ball.speed, ball.directionY) - bottomPos;
-  const racketPosY = racketPositionY(racketHTML, ballHTML);
-  return posY > racketPosY;
-}
-
-function isGameOver2(racketHTML, ballHTML, ball) {
-  const bottomPos = racketHTML.offsetHeight;
-  const posY = nextPosition(ball.y, ball.speed, ball.directionY) - bottomPos;
-  const racketPosY = racketPositionY(racketHTML, ballHTML);
-  return posY+20 < racketPosY;
-}
-
-function endGame(pong) {
-  pong.status = STATUSES.GAMEOVER;
-  pong2.status = STATUSES.GAMEOVER;
-}
-
-function drawEndGame(gameOverHTML, playerNum) {
-  gameOverHTML.style.display = 'block';
-  gameOverHTML.innerHTML = "player"+playerNum+" won!<br/>press F5 to play again"
-}
-
-function isRunning() {
-  return pong.status === STATUSES.RUNNING;
-}
-
-function isStoped() {
-  return pong.status === STATUSES.STOPED;
-}
-
-function isRunning2() {
-  return pong.status === STATUSES.RUNNING;
-}
-
-function isStoped2() {
-  return pong.status === STATUSES.STOPED;
-}
-
-function buildPosition(dirX, dirY, x, y) {
-  return {
-    directionX: dirX,
-    directionY: dirY,
-    x,
-    y,
-  };
-}
+const ball = makeBall();
 
 function load() {
   const playgroundHTML = document.getElementById('playground');
@@ -230,46 +36,48 @@ function load() {
   const loop2 = gameInterval.pipe(filter(isRunning2));
   const stoped = keyDown.pipe(filter(isStoped));
   const stoped2 = keyDown.pipe(filter(isStoped2));
-  const newDirX = loop.pipe(map(() => moveBallDirectionX(playgroundHTML, pong.ball)));
-  const newDirY = loop.pipe(map(() => moveBallDirectionY(playgroundHTML, pong.ball)));
-  const newPosX = newDirX.pipe(map(dirX => moveBallPosition(pong.ball, dirX)));
-  const newPosY = newDirY.pipe(map(dirY => moveBallPosition(pong.ball, dirY)));
-  const newBallPos = zip(newDirX, newDirY, newPosX, newPosY, buildPosition);
-  const moveRacketPos = loop.pipe(map(() => moveRacket(racketHTML, pong)));
-  const moveRacketPos2 = loop2.pipe(map(() => moveRacket2(racket2HTML, pong2)));
-  const hit = loop.pipe(filter(() => isRacketHit(racketHTML, ballHTML, pong.ball)));
-  const hit2 = loop2.pipe(filter(() => isRacketHit2(racket2HTML, ballHTML, pong.ball)));
-  const gameOver = loop.pipe(filter(() => isGameOver(racketHTML, ballHTML, pong.ball)));
-  const gameOver2 = loop2.pipe(filter(() => isGameOver2(racket2HTML, ballHTML, pong.ball)));
+  const newDirX = loop.pipe(map(() => moveBallDirX(playgroundHTML, ball)));
+  const newDirY = loop.pipe(map(() => moveBallDirY(playgroundHTML, ball)));
+  const newPosX = newDirX.pipe(map(dirX => moveBallPos(ball, dirX)));
+  const newPosY = newDirY.pipe(map(dirY => moveBallPos(ball, dirY)));
+  const newBallPos = zip(newDirX, newDirY, newPosX, newPosY, buildPos);
+  const moveRacketPos = loop.pipe(map(() => moveRacket(racketHTML, racket)));
+  const moveRacketPos2 = loop2.pipe(map(() => moveRacket2(racket2HTML, racket2)));
+  const hit = loop.pipe(filter(() => isRacketHit(racketHTML, ballHTML, ball)));
+  const hit2 = loop2.pipe(filter(() => isRacketHit2(racket2HTML, ballHTML, ball)));
+  const gameOver = loop.pipe(filter(() => isGameOver(racketHTML, ballHTML, ball, 1)));
+  const gameOver2 = loop2.pipe(filter(() => isGameOver(racket2HTML, ballHTML, ball, 0)));
 
   keyDown.subscribe((event) => {
     if (event.which === KEYS.LEFT || event.which === KEYS.RIGHT) {
-      pong.pressedKeys[event.which] = true;
+      racket.pressedKeys[event.which] = true;
     } else if (event.which === KEYS.A || event.which === KEYS.D) {
-      pong2.pressedKeys[event.which] = true;
+      racket2.pressedKeys[event.which] = true;
+    } else if (event.which == KEYS.R && racket.status === STATUSES.GAMEOVER && racket2.status === STATUSES.GAMEOVER) {
+      restart(racket, racket2, ball, gameOverHTML);
     }
   });
   keyUp.subscribe((event) => {
     if (event.which === KEYS.LEFT || event.which === KEYS.RIGHT) {
-      pong.pressedKeys[event.which] = false;
+      racket.pressedKeys[event.which] = false;
     } else if (event.which === KEYS.A || event.which === KEYS.D) {
-      pong2.pressedKeys[event.which] = false;
+      racket2.pressedKeys[event.which] = false;
     }
   });
 
   stoped.subscribe((event) => {
-    pong.status = STATUSES.RUNNING;
+    racket.status = STATUSES.RUNNING;
     startHTML.style.display = 'none';
   });
 
   stoped2.subscribe((event) => {
-    pong2.status = STATUSES.RUNNING;
+    racket2.status = STATUSES.RUNNING;
     startHTML.style.display = 'none';
   });
 
   newBallPos.subscribe((pos) => {
-    changeBallPosition(pong.ball, pos.directionX, pos.x, pos.directionY, pos.y);
-    drawBall(ballHTML, pong.ball);
+    changeBallPos(ball, pos.directionX, pos.x, pos.directionY, pos.y);
+    drawBall(ballHTML, ball);
   });
 
   moveRacketPos.subscribe((pixelPos) => {
@@ -281,25 +89,25 @@ function load() {
   });
 
   hit.subscribe((hit) => {
-    changeDirectionY(pong.ball);
-    changeScore(pong);
-    drawScore(scoreHTML, pong.score);
+    changeDirY(ball);
   });
 
   hit2.subscribe((hit2) => {
-    changeDirectionY(pong.ball);
-    changeScore(pong2);
-    drawScore(scoreHTML2, pong2.score);
+    changeDirY(ball);
   });
 
   gameOver.subscribe(() => {
-    endGame(pong);
-    drawEndGame(gameOverHTML, 2);
+    endGame(racket, racket2);
+    changeScore(racket);
+    drawScore(scoreHTML, racket.score);
+    drawEndGame(gameOverHTML, 1);
   });
 
   gameOver2.subscribe(() => {
-    endGame(pong);
-    drawEndGame(gameOverHTML, 1);
+    endGame(racket, racket2);
+    changeScore(racket2)
+    drawScore(scoreHTML2, racket2.score);
+    drawEndGame(gameOverHTML, 2);
 
   });
 }
